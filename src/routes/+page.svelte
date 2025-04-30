@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { ArrowRight as IconArrowRight } from 'lucide-svelte';
 	// The 'data' prop is automatically populated by SvelteKit
 	// with the return value from the load function in +page.server.ts
 	export let data: {
@@ -16,10 +17,28 @@
 		Listing folders in bucket: <code class="rounded bg-gray-200 px-2 py-1 text-sm"
 			>{data.bucket}</code
 		>
-		{#if data.prefixQueried}
-			<br />Prefix: <code class="rounded bg-gray-200 px-2 py-1 text-sm">{data.prefixQueried}</code>
-		{/if}
 	</p>
+	<div class="card preset-filled-surface-100-800 p-6">
+
+		<form method="POST" class="space-y-6">
+			<label class="label">
+				<span>S3 Path</span>
+				<input
+					name="name"
+					class="input space-y-4"
+					type="text"
+					placeholder="Enter S3 path"
+					required
+					bind:value={data.prefixQueried}
+				/>
+				<button type="submit" class="btn preset-filled-primary-500">
+					<span>Filter by Prefix</span>
+					<IconArrowRight size={18} />
+				  </button>
+			</label>
+
+		</form>
+    </div>
 
 	{#if data.folders && data.folders.length > 0}
 		<div class="overflow-x-auto rounded-lg bg-white shadow">

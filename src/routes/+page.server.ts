@@ -4,6 +4,8 @@ import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 // If it's for '/search', it should be './search/$types' - adjust as needed.
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
+import type { Actions } from './$types';
+import { fail } from '@sveltejs/kit';
 
 // Import necessary environment variables securely
 import { AWS_REGION, S3_BUCKET_NAME } from "$env/static/private";
@@ -28,7 +30,7 @@ export const load: PageServerLoad = async ({ params }) => {
     // Example: Use 'batch/' to list folders directly under 'batch/'
     // Example: Use '' (empty string) to list folders at the root of the bucket
     // Example: Use params if the prefix comes from the route: `${params.someParam}/`
-    const prefixToList = 'batch/2024/05/16/'; // Adjust this prefix as needed
+    const prefixToList = 'batch/2024/'; // Adjust this prefix as needed
 
     const command = new ListObjectsV2Command({
         Bucket: S3_BUCKET_NAME,
@@ -38,7 +40,8 @@ export const load: PageServerLoad = async ({ params }) => {
 
     try {
         const response = await s3Client.send(command);
-        // console.log("S3 Response:", response); // Keep for debugging if needed
+        console.log("S3 Response:", response); // Keep for debugging if needed
+
 
         // Extract only the common prefixes (the "folders")
         // Ensure the Prefix property is extracted correctly, it might be undefined if no folders found
@@ -68,4 +71,11 @@ export const load: PageServerLoad = async ({ params }) => {
             throw error(500, `Failed to list folders in bucket: ${errorMessage}`);
         }
     }
+};
+
+export const actions = {
+	default: async ({ cookies, request }) => {
+		const data = await request.formData();
+		console.log("form data", data);
+	}
 };
