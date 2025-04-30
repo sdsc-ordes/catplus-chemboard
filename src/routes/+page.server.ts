@@ -1,75 +1,71 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
-import type { PageServerLoad } from './search/$types';
+// Make sure the import path for $types is correct for your route
+// If this is for the root route '/', it should be './$types'
+// If it's for '/search', it should be './search/$types' - adjust as needed.
+import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
 
 // Import necessary environment variables securely
-// Ensure these are set in your .env file or deployment environment
 import { AWS_REGION, S3_BUCKET_NAME } from "$env/static/private";
-// AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) should ideally be
-// sourced automatically by the SDK from environment variables or IAM roles.
 
 // Basic check for essential configuration
 if (!AWS_REGION || !S3_BUCKET_NAME) {
     console.error("Missing required S3 configuration (AWS_REGION or S3_BUCKET_NAME)");
-    // Throwing an error during module load might stop the server,
-    // consider handling this more gracefully depending on your setup.
     throw new Error("Server configuration error: S3 settings missing.");
 }
 
 // Instantiate the S3 Client
-// Ensure your server environment has AWS credentials configured
-// (e.g., via environment variables, ~/.aws/credentials, or IAM role)
 const s3Client = new S3Client({
     region: AWS_REGION,
+    // Credentials should be handled by the environment (IAM role, env vars, etc.)
 });
 
 // Define the PageServerLoad function to fetch data before the page loads
 export const load: PageServerLoad = async ({ params }) => {
-    console.log(`Fetching objects from bucket: ${S3_BUCKET_NAME}`);
+    console.log(`Fetching folders from bucket: ${S3_BUCKET_NAME}`);
 
-    // Optional: You could use route parameters to define a prefix (folder) to list
-    // const prefix = params.prefix ? `${params.prefix}/` : '';
-    const prefix = ''; // List from the root, adjust as needed
+    // Define the prefix (folder path) to list within
+    // Example: Use 'batch/' to list folders directly under 'batch/'
+    // Example: Use '' (empty string) to list folders at the root of the bucket
+    // Example: Use params if the prefix comes from the route: `${params.someParam}/`
+    const prefixToList = 'batch/2024/05/16/'; // Adjust this prefix as needed
 
     const command = new ListObjectsV2Command({
         Bucket: S3_BUCKET_NAME,
-        Prefix: prefix,
-        // Delimiter: '/', // Use if you only want top-level items in the prefix
+        Prefix: prefixToList,
+        Delimiter: '/', // Key to list folders
     });
 
     try {
         const response = await s3Client.send(command);
+        // console.log("S3 Response:", response); // Keep for debugging if needed
 
-        // Extract relevant data from the response
-        // response.Contents is an array of objects in the bucket/prefix
-        // response.CommonPrefixes lists "subfolders" if Delimiter is used
-        const objects = response.Contents?.map(item => ({
-            key: item.Key, // The full path/name of the object
-            size: item.Size, // Size in bytes
-            lastModified: item.LastModified, // Date object
-        })) ?? []; // Provide an empty array if Contents is undefined
+        // Extract only the common prefixes (the "folders")
+        // Ensure the Prefix property is extracted correctly, it might be undefined if no folders found
+        const folders = response.CommonPrefixes?.map(commonPrefix => commonPrefix.Prefix).filter(Boolean) as string[] || [];
 
-        console.log(`Found ${objects.length} objects.`);
-        console.log(objects);
+        console.log(`Folders directly under '${prefixToList}':`, folders);
 
-        // Return the fetched data - this becomes the 'data' prop in +page.svelte
+        // *** FIX: Return an object containing the folders array ***
         return {
-            bucket: S3_BUCKET_NAME,
-            prefix: prefix,
-            objects: objects, // Pass the array of object details
+            folders: folders, // Pass the folders array under the 'folders' key
+            prefixQueried: prefixToList, // Optionally pass the prefix used for context
+            bucket: S3_BUCKET_NAME, // Pass the bucket name for reference
         };
 
-    } catch (err: any) {
-        console.error("Error listing S3 objects:", err);
+    } catch (err: any) { // Catch as 'any' or 'unknown'
+        console.error("Error listing S3 folders:", err);
 
-        // Handle specific AWS errors if needed
-        if (err.name === 'NoSuchBucket') {
+        // Handle specific AWS SDK v3 errors
+        // Check the error structure, often `err.name` or `err.$metadata.httpStatusCode`
+        if (err.name === 'NoSuchBucket' || err?.$metadata?.httpStatusCode === 404) {
             throw error(404, `Bucket not found: ${S3_BUCKET_NAME}`);
-        } else if (err.name === 'AccessDenied') {
+        } else if (err.name === 'AccessDenied' || err?.$metadata?.httpStatusCode === 403) {
              throw error(403, `Access denied listing bucket: ${S3_BUCKET_NAME}`);
         } else {
             // Throw a generic server error for other issues
-            throw error(500, `Failed to list objects in bucket: ${err.message || 'Unknown error'}`);
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+            throw error(500, `Failed to list folders in bucket: ${errorMessage}`);
         }
     }
 };
