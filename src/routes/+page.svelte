@@ -8,7 +8,6 @@
 		folders?: Array<{
 		}>;
 	};
-	console.log(data)
 </script>
 
 <div class="container mx-auto p-4 font-sans md:p-8">

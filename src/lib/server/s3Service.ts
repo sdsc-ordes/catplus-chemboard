@@ -1,11 +1,7 @@
-// Example: src/lib/server/s3Service.ts OR directly in a +server.ts file
-
 import {
     S3Client,
-    PutObjectCommand,
     GetObjectCommand,
     ListObjectsV2Command,
-    DeleteObjectCommand
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME } from "$env/static/private";
