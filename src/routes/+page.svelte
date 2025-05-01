@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { ArrowRight as IconArrowRight } from 'lucide-svelte';
 	// The 'data' prop is automatically populated by SvelteKit
 	// with the return value from the load function in +page.server.ts
-	export let data: {
-		prefixQueried?: string;
-		bucket?: string;
-		folders?: Array<{
-		}>;
-	};
+	let { data } = $props();
+	console.log(data);
+	import { Accordion } from '@skeletonlabs/skeleton-svelte';
+	import Archive from '@lucide/svelte/icons/archive';
+
+	let value = $state(['archive']);
 </script>
 
 <div class="container mx-auto p-4 font-sans md:p-8">
@@ -32,55 +31,24 @@
 				/>
 				<button type="submit" class="btn preset-filled-primary-500">
 					<span>Filter by Prefix</span>
-					<IconArrowRight size={18} />
 				  </button>
 			</label>
 
 		</form>
     </div>
 
-	{#if data.folders && data.folders.length > 0}
-		<div class="overflow-x-auto rounded-lg bg-white shadow">
-			<table class="min-w-full divide-y divide-gray-200">
-				<thead class="bg-gray-100">
-					<tr>
-						<th
-							scope="col"
-							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-600 uppercase"
-						>
-							Folder (Name)
-						</th>
+	  <Accordion {value} onValueChange={(e) => (value = e.value)} multiple>
+		{#each data.folders as folder}
+		<Accordion.Item value="{folder}">
+		  <!-- Control -->
+		  {#snippet lead()}<Archive size={24} />{/snippet}
+		  {#snippet control()}{folder}{/snippet}
+		  <!-- Panel -->
+		  {#snippet panel()}{folder}{/snippet}
+		</Accordion.Item>
+		{/each}
+	  </Accordion>
 
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-200 bg-white">
-					{#each data.folders as folder}
-						<tr class="transition-colors duration-150 hover:bg-gray-50">
-							<td class="px-6 py-4 text-sm font-medium break-all whitespace-nowrap text-gray-900">
-								{folder}
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	{:else if data.objects}
-		<div
-			class="relative rounded border border-blue-400 bg-blue-100 px-4 py-3 text-blue-700"
-			role="alert"
-		>
-			<strong class="font-bold">Info:</strong>
-			<span class="block sm:inline"> No objects found in this bucket/prefix.</span>
-		</div>
-	{:else}
-		<div
-			class="relative rounded border border-yellow-400 bg-yellow-100 px-4 py-3 text-yellow-700"
-			role="alert"
-		>
-			<strong class="font-bold">Loading:</strong>
-			<span class="block sm:inline"> Fetching object list...</span>
-		</div>
-	{/if}
 </div>
 
 <svelte:head>

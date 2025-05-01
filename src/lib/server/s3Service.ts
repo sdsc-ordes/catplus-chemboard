@@ -7,10 +7,6 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME } from "$env/static/private";
 
 // Configure the S3 Client
-// Credentials will be automatically sourced from environment variables
-// (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN),
-// shared credential file (~/.aws/credentials), or IAM role if running on AWS infrastructure.
-// You can explicitly pass credentials if needed, but env vars/roles are more secure.
 const s3Client = new S3Client({
     region: AWS_REGION,
       credentials: { // Only needed if NOT using env vars or IAM roles
@@ -19,7 +15,7 @@ const s3Client = new S3Client({
     }
 });
 
-const BUCKET = S3_BUCKET_NAME; // Your bucket name from env vars
+const BUCKET = S3_BUCKET_NAME;
 
 // --- Example Functions ---
 

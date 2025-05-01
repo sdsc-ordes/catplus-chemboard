@@ -1,0 +1,12 @@
+	// The 'data' prop is automatically populated by SvelteKit
+	// with the return value from the load function in +page.server.ts
+	let { data } = $props();
+	console.log(data);
+	import { Accordion } from '@skeletonlabs/skeleton-svelte';
+	import { Archive, FileText } from 'lucide-svelte';
+	let value = $state(['archive']);
+	import type { _Object } from '@aws-sdk/client-s3';
+	// Convert the record into an array for easier iteration in the template
+	const folderItems = $derived(
+		Object.entries(data.files ?? {}).map(([prefix, files]) => ({ prefix, files }))
+	);
