@@ -50,7 +50,6 @@ export const load: PageServerLoad = async ({ params }) => {
         })) ?? []; // Provide an empty array if Contents is undefined
 
         console.log(`Found ${objects.length} objects.`);
-        console.log(objects);
 
         // Return the fetched data - this becomes the 'data' prop in +page.svelte
         return {

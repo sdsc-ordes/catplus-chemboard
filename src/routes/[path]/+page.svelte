@@ -10,7 +10,6 @@
 			lastModified: Date;
 		}>;
 	};
-	console.log(data)
 
 	// Helper function to format bytes into KB, MB, etc.
 	function formatBytes(bytes: number | undefined | null, decimals = 2): string {

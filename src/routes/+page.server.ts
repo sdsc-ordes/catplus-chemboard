@@ -1,5 +1,7 @@
 // Example in src/routes/some-route/+page.server.ts
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, Actions } from './$types';
+
+import { redirect, fail } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -23,29 +25,51 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 
-// Define the Actions object
 export const actions: Actions = {
-	// Default action handles the form submission
-	default: async ({ request, url }) => {
+	// Use a named action matching your form's 'action' attribute
+	// Or use 'default' if the form doesn't specify an action name
+	filter: async ({ request, url }) => {
 		const formData = await request.formData();
-		console.log("Form data received:", formData);
-		// Get the prefix from the form input.
-		// IMPORTANT: Ensure your form input has name="prefix"
-		//const prefix = formData.get('prefix');
+		const fromDate = formData.get('fromDate');
+		const toDate = formData.get('toDate');
+		console.log("formData", formData);
 
-		// Basic validation
-		//if (!prefix || typeof prefix !== 'string') {
-		//	return fail(400, { error: 'Prefix is required.', missing: true });
-		//}
+		// --- Validation (Basic Example) ---
+		if (!fromDate || typeof fromDate !== 'string') {
+			// Return a failure state if 'fromDate' is missing or not a string
+			// The 'fail' function prevents the redirect and returns data to the 'form' prop
+			return fail(400, { error: 'From Date is required.', missingFrom: true, toDate });
+		}
+		if (!toDate || typeof toDate !== 'string') {
+			// Return a failure state if 'toDate' is missing or not a string
+			return fail(400, { error: 'To Date is required.', missingTo: true, fromDate });
+		}
 
-		//console.log("Form submitted with prefix:", prefix);
+		// Optional: Add more robust date format validation here if needed
+		// e.g., using a regex or a date parsing library.
+		const datePattern = /^\d{4}\/\d{2}\/\d{2}$/; // Matches YYYY/MM/DD
+        if (!datePattern.test(fromDate) || !datePattern.test(toDate)) {
+            return fail(400, { error: 'Dates must be in YYYY/MM/DD format.', fromDate, toDate });
+        }
 
-		// Redirect back to the same page, but add/update the 'prefix' search parameter
-		// This will cause the `load` function to re-run with the new prefix
-		//const targetUrl = new URL(url); // Get current URL
-		//targetUrl.searchParams.set('prefix', prefix); // Set the prefix parameter
+		console.log(`Action: Filtering from ${fromDate} to ${toDate}`);
 
-		// Use 'throw redirect' to perform the redirect
-		//throw redirect(303, targetUrl.toString());
+		// --- Construct Redirect URL ---
+		// Create a URL object based on the current page's URL
+		const targetUrl = new URL(url);
+
+		// Set the desired search parameters
+		targetUrl.searchParams.set('date-from', fromDate);
+		targetUrl.searchParams.set('date-to', toDate);
+
+		// Clear any previous 'prefix' parameter if it exists from other actions/loads
+        targetUrl.searchParams.delete('prefix');
+
+		console.log("Target URL for redirect:", targetUrl.toString());
+
+		// --- Redirect ---
+		// Use status 303 (See Other) for POST -> GET redirect pattern
+		throw redirect(303, targetUrl.toString());
 	}
+	// Add other actions if needed
 };

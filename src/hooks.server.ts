@@ -61,10 +61,8 @@ async function listFilesInBucket(prefix: string): Promise<string[]> {
         Prefix: prefix,
     });
     try {
-        console.log(command)
         const response = await s3Client.send(command);
         console.log("get list files in buckets");
-        console.log(Object.keys(response));
 		return response.Contents?.map((item) => item.Key || '').filter(Boolean) as string[] || [];
     } catch (error: any) {
         console.error(`S3 Util: Error listing files with prefix ${prefix}:`, error);
@@ -80,10 +78,8 @@ async function listFoldersInBucket(prefix: string): Promise<string[]> {
         Delimiter: '/',
     });
     try {
-        console.log(command)
         const response = await s3Client.send(command);
         console.log("get list folders in buckets");
-        console.log(Object.keys(response));
         return response.CommonPrefixes?.map(commonPrefix => commonPrefix.Prefix).filter(Boolean) as string[] || [];
     } catch (error: any) {
         console.error(`S3 Util: Error listing folders with prefix ${prefix}:`, error);

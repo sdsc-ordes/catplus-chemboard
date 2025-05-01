@@ -51,7 +51,6 @@
 			// Optionally update the input field to match the queried prefix if needed
 			// prefixInput = data.prefixQueried;
 
-			console.log('Fetch successful:', data);
 		} catch (err: any) {
 			console.error('Error fetching S3 folders:', err);
 			errorMessage = err.message || 'An unknown error occurred while fetching folders.';
