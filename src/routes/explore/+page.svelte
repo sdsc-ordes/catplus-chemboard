@@ -55,7 +55,7 @@
 				<div class="flex items-center space-x-2 py-1">
 					<FileText size={16} class="text-surface-500 flex-shrink-0" />
 					<span>
-						<a href={s3PrefixToUrlPath(file.Key)}>{file.name} ({file.Size} bytes)</a>
+						<a href={s3PrefixToUrlPath(file.Key)}>{file.name} ({file.Size} bytes) {s3PrefixToUrlPath(file.Key)} {file.Key}</a>
 					</span>
 				  </div>
 				{/each}
