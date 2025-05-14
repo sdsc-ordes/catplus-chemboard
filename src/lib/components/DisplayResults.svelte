@@ -5,16 +5,23 @@
 	import IconFirst from '@lucide/svelte/icons/chevrons-left';
 	import IconLast from '@lucide/svelte/icons/chevron-right';
 	import Campaign from '$lib/components/Campaign.svelte';
-	import { ResultsPerPage} from '$lib/const/campaign';
-	import type { S3FileInfo } from '$lib/schema/s3.js';
+	import { ResultsPerPage} from '$lib/types/s3Search';
+	import type { S3FileInfo } from '$lib/types/s3Search';
 	import { Pagination } from '@skeletonlabs/skeleton-svelte';
-	import type { ResultItemBase } from '$lib/schema/campaign';
 
-	// get props from data loader
+	interface ResultItemBase {
+		prefix: string;
+	}
+
+	// Component imports
+	interface ComponentProps {
+		tableHeaders: string;
+		results: string[]
+	};
 	let {
-		results,
-		tableHeaders
-	} = $props();
+		tableHeaders,
+		results
+	}: ComponentProps = $props();
 
 	// Pagination of Campaigns
 	let page = $state(1);
@@ -23,6 +30,7 @@
 
 	// State for the fetched detailed data for the main content
 	let detailedContent = $state<S3FileInfo[] | null>(null);
+	$inspect(detailedContent);
 	let isLoadingDetails = $state(false);
 	let detailError = $state<string | null>(null);
 	let activeResultItem = $state<ResultItemType | null>(null);
@@ -31,6 +39,7 @@
         isLoadingDetails = true;
         detailError = null;
         detailedContent = null;
+		console.log('Fetching details for path:', path);
         try {
             // Adjust the URL to your actual API endpoint structure
             const response = await fetch(`/api/${path}`);
@@ -78,8 +87,8 @@
 	<h1 class="bg-tertiary-50 mb-4 p-4 text-2xl font-bold text-gray-800">
 		Results ({results.length})
 	</h1>
-	<div class="table-wrap bg-tertiary-50">
-		<table class="table table-fixed caption-bottom">
+	<div class="table-wrap bg-tertiary-50 overflow-x-auto rounded-lg shadow">
+		<table class="table caption-bottom">
 			<thead>
 				<tr>
 					{#each tableHeaders as header}
@@ -96,7 +105,15 @@
 					>
 					{#each Object.values(result) as value, key}
 						<td>
-							{value}
+							{#if Array.isArray(value)}
+								<ul>
+									{#each value as item}
+										<li>- {item}</li>
+									{/each}
+								</ul>
+							{:else}
+								{value}
+ 							{/if}
 						</td>
 					{/each}
 					</tr>
