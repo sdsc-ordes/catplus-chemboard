@@ -3,8 +3,8 @@
 	import ContentLayout from '$lib/components/ContentLayout.svelte';
 	import DisplayResults from '$lib/components/DisplayResults.svelte';
 	import S3SearchForm from '$lib/components/S3SearchForm.svelte';
-	import type { CampaignResult } from '$lib/schema/campaign';
-	import { ResultTableHeaders } from '$lib/const/campaign';
+	import type { CampaignResult } from '$lib/types/campaign.js';
+	import { HeadersS3Results} from '$lib/types/s3Search.js';
 
 	// Get prefix from parameters
 	let prefix = routePage.url.searchParams.get('prefix') || 'batch/';
@@ -23,7 +23,7 @@
 {#snippet main()}
 <DisplayResults
     results={results}
-	tableHeaders={ResultTableHeaders}
+	tableHeaders={HeadersS3Results}
 />
 {/snippet}
 
