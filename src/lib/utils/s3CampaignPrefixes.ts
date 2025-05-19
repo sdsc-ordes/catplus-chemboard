@@ -1,5 +1,5 @@
-import type { S3FileInfo } from '$lib/schema/s3.js';
-import type { CampaignResult } from '$lib/schema/campaign';
+import type { S3FileInfo } from '$lib/types/s3.js';
+import type { CampaignResult } from '$lib/types/campaign';
 
 /**
  * Extracts unique directory prefixes from a list of S3 files.
