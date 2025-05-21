@@ -1,6 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
 import { redirect } from '@sveltejs/kit';
-import { s3LinkToPrefix } from '$lib/utils/mapSparqlResults';
+import { mapQleverResults, groupMappedQleverResultsByPrefix } from '$lib/utils/mapSparqlResults';
 import { getSearchOptionsList } from '$lib/server/searchOptionUtils';
 import { getSparqlQueryResult } from '$lib/server/getSparqlQueryResult';
 import type {
@@ -36,11 +36,12 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	// fetch results according to the selection
 	console.log(ResultSparqlQuery);
 	const sparqlResult = await getSparqlQueryResult(locals, ResultSparqlQuery)
-	console.log(sparqlResult);
+	const resultTable = groupMappedQleverResultsByPrefix(sparqlResult);
+	console.log(resultTable);
 
 	// Return results, selections and options
 	return {
-		results: sparqlResult,
+		results: resultTable,
 		picklists: pickListsMap,
 		initialFilters: initialFilters,
 	};

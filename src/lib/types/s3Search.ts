@@ -26,8 +26,7 @@ export const HeadersS3Results: string[] = ["Campaign Path", "Date"]
 
 // Table Headers of Qlever Results
 export const HeadersQleverResults: string[] = [
-    "Campaign Path", "Campaign Name", "Chemical Name", "Smiles",
-    "CAS", "Reaction Type", "Reaction Type",
+    "Campaign Path", "Campaign Name", "Reaction Type", "Reaction Type", "Chemicals (Name, Cas, Smiles)"
 ]
 
 /**

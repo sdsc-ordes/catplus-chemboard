@@ -30,8 +30,8 @@ export async function getSparqlQueryResult(
         console.log(result);
 
         const resultObjects = parseCsvToObjects(result);
-
         console.log(resultObjects);
+        resultObjects.map
 
         return resultObjects;
     } catch (error) {

@@ -6,9 +6,9 @@
 	import IconLast from '@lucide/svelte/icons/chevron-right';
 	import Campaign from '$lib/components/Campaign.svelte';
 	import { ResultsPerPage} from '$lib/types/s3Search';
-	import type { S3FileInfo } from '$lib/types/s3.js';
+	import type { S3FileInfo } from '$lib/types/s3Search';
 	import { Pagination } from '@skeletonlabs/skeleton-svelte';
-	import type { ResultItemBase } from '$lib/types/campaign';
+	import type { ResultItemBase } from '$lib/types/s3Search';
 
 	// get props from data loader
 	let {
@@ -96,7 +96,15 @@
 					>
 					{#each Object.values(result) as value, key}
 						<td>
-							{value}
+							{#if Array.isArray(value)}
+								<ul>
+									{#each value as item}
+										<li>- {item}</li>
+									{/each}
+								</ul>
+							{:else}
+								{value}
+ 							{/if}
 						</td>
 					{/each}
 					</tr>

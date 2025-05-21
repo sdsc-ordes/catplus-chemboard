@@ -33,7 +33,7 @@ export type FilterCategory =
     | 'CAS'
     | 'SMILES';
 
-export type ResultTableColumns = FilterCategory | 'CAMPAIGN' | 'CONTENT_URL';
+export type ResultTableColumns = FilterCategory | 'CONTENT_URL';
 
 export const FilterCategoriesSorted: FilterCategory[] = [
     'CAMPAIGN_NAME',
@@ -45,7 +45,6 @@ export const FilterCategoriesSorted: FilterCategory[] = [
 ];
 
 export const ResultTableColumnsSorted: ResultTableColumns[] = [
-    'CAMPAIGN',
     'CONTENT_URL',
     'CAMPAIGN_NAME',
     'REACTION_TYPE',
@@ -158,9 +157,8 @@ export interface SelectionState {
 }
 
 export const SparqlVariables: Record<ResultTableColumns, string> = {
-    CAMPAIGN: "s",
     CONTENT_URL: "cu",
-    CAMPAIGN_NAME: "cn",
+    CAMPAIGN_NAME: "cp",
     REACTION_TYPE: "rt",
     REACTION_NAME: "rn",
     CHEMICAL_NAME: "cn",
@@ -168,10 +166,27 @@ export const SparqlVariables: Record<ResultTableColumns, string> = {
     SMILES: "sm",
 }
 
-export const BaseResultSparqlQuery = `PREFIX obo: <http://purl.obolibrary.org/obo/> PREFIX allores: <http://purl.allotrope.org/ontologies/result#> PREFIX cat: <http://example.org/cat#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX schema: <https://schema.org/> SELECT ?cu ?o ?rt ?rn ?sm ?ca ?cn WHERE { ?s a cat:Campaign ; cat:hasBatch ?b; cat:hasChemical ?c . OPTIONAL {?s schema:name ?o } OPTIONAL {?s schema:contentURL ?cu } ?b cat:reactionType ?rt ; cat:reactionName ?rn . ?c allores:AFR_0002295 ?sm ; allores:AFR_0002292 ?cn ; cat:casNumber ?ca . }`
+export const BaseResultSparqlQuery = `PREFIX obo: <http://purl.obolibrary.org/obo/> PREFIX allores: <http://purl.allotrope.org/ontologies/result#> PREFIX cat: <http://example.org/cat#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX schema: <https://schema.org/> SELECT ?cu ?cp ?rt ?rn ?sm ?ca ?cn WHERE { ?s a cat:Campaign ; cat:hasBatch ?b; cat:hasChemical ?c . OPTIONAL {?s schema:name ?cp } OPTIONAL {?s schema:contentURL ?cu } ?b cat:reactionType ?rt ; cat:reactionName ?rn . ?c allores:AFR_0002295 ?sm ; allores:AFR_0002292 ?cn ; cat:casNumber ?ca . } ORDER BY ?cu`
 
 export const ResultSparqlQuery: SparqlQueryConfig = {
     sparqlQuery: BaseResultSparqlQuery,
     resultFormat: `text/csv`,
 };
 
+export interface QleverRawResult {
+    cu: string;
+    cp: string;
+    rn: string;
+    rt: string;
+    cn: string;
+    ca: string;
+    sm: string;
+}
+
+export interface QleverDisplayResult {
+    prefix: string;
+    campaignName: string;
+    reactionName: string;
+    reactionType: string;
+    chemicals: string;
+}
