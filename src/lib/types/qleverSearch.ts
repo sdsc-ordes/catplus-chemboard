@@ -85,7 +85,7 @@ export const SparqlFilterQueries: Record<FilterCategory, SparqlQueryConfig> = {
         resultFormat: `text/csv`,
     },
     CAMPAIGN_NAME: {
-        sparqlQuery: `PREFIX cat: <http://example.org/cat#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX schema: <https://schema.org/> SELECT ?o1 WHERE {?Campaign a cat:Campaign . OPTIONAL {?Campaign schema:name ?o1}}`,
+        sparqlQuery: `PREFIX cat: <http://example.org/cat#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX schema: <https://schema.org/> SELECT DISTINCT ?o1 WHERE {?Campaign a cat:Campaign . OPTIONAL {?Campaign schema:name ?o1}}`,
         resultFormat: `text/csv`,
     },
 };
