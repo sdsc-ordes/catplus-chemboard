@@ -73,7 +73,7 @@ export const SparqlFilterQueries: Record<FilterCategory, SparqlQueryConfig> = {
         resultFormat: `text/csv`,
     },
     SMILES: {
-        sparqlQuery: `PREFIX allores: <http://purl.allotrope.org/ontologies/result#> SELECT DISTINCT ?smiles WHERE { ?s allores:AFR_0002296 ?smiles .}`,
+        sparqlQuery: `PREFIX allores: <http://purl.allotrope.org/ontologies/result#> SELECT DISTINCT ?smiles WHERE { ?s allores:AFR_0002295 ?smiles .}`,
         resultFormat: `text/csv`,
     },
     REACTION_NAME: {
@@ -166,7 +166,23 @@ export const SparqlVariables: Record<ResultTableColumns, string> = {
     SMILES: "sm",
 }
 
-export const BaseResultSparqlQuery = `PREFIX obo: <http://purl.obolibrary.org/obo/> PREFIX allores: <http://purl.allotrope.org/ontologies/result#> PREFIX cat: <http://example.org/cat#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX schema: <https://schema.org/> SELECT ?cu ?cp ?rt ?rn ?sm ?ca ?cn WHERE { ?s a cat:Campaign ; cat:hasBatch ?b; cat:hasChemical ?c . OPTIONAL {?s schema:name ?cp } OPTIONAL {?s schema:contentURL ?cu } ?b cat:reactionType ?rt ; cat:reactionName ?rn . ?c allores:AFR_0002295 ?sm ; allores:AFR_0002292 ?cn ; cat:casNumber ?ca . } ORDER BY ?cu`
+/**
+ * Represents the mapping from descriptive column keys to their SPARQL variable names.
+ * Example: { CAMPAIGN_NAME: "cp", CAS: "ca", ... }
+ */
+export type SparqlVariablesMapping = Record<FilterCategory, string>;
+
+/**
+ * Defines the structure for the input filters object.
+ * Keys are the descriptive column names, and values are arrays of strings to filter by.
+ * Example: { CAMPAIGN_NAME: ["Some Campaign"], CAS: ["123-45-6", "789-01-2"] }
+ */
+export type FiltersObject = Partial<Record<FilterCategory, string[]>>;
+
+export const BaseResultSparqlQuery = {
+    baseClause: `PREFIX obo: <http://purl.obolibrary.org/obo/> PREFIX allores: <http://purl.allotrope.org/ontologies/result#> PREFIX cat: <http://example.org/cat#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX schema: <https://schema.org/> SELECT ?cu ?cp ?rt ?rn ?sm ?ca ?cn WHERE { ?s a cat:Campaign ; cat:hasBatch ?b; cat:hasChemical ?c . OPTIONAL {?s schema:name ?cp } OPTIONAL {?s schema:contentURL ?cu } ?b cat:reactionType ?rt ; cat:reactionName ?rn . ?c allores:AFR_0002295 ?sm ; allores:AFR_0002292 ?cn ; cat:casNumber ?ca . `,
+    orderByClause: `} ORDER BY ?cu`
+}
 
 export const ResultSparqlQuery: SparqlQueryConfig = {
     sparqlQuery: BaseResultSparqlQuery,

@@ -7,7 +7,6 @@
 
 	// Result table
 	const results = data.results;
-	$inspect(results)
 </script>
 
 {#snippet sidebar()}

@@ -27,12 +27,8 @@ export async function getSparqlQueryResult(
 
         // Fetch the CSV result using the SPARQL query
         const result = await locals.qlever.queryQlever(config);
-        console.log(result);
 
         const resultObjects = parseCsvToObjects(result);
-        console.log(resultObjects);
-        resultObjects.map
-
         return resultObjects;
     } catch (error) {
         console.error(`Failed to get search options list for query targeting key "${config.resultKey}":`, error);

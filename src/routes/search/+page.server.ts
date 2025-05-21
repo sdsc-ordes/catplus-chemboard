@@ -1,12 +1,11 @@
 import type { PageServerLoad, Actions } from './$types';
 import { redirect } from '@sveltejs/kit';
-import { mapQleverResults, groupMappedQleverResultsByPrefix } from '$lib/utils/mapSparqlResults';
+import { groupMappedQleverResultsByPrefix } from '$lib/utils/mapSparqlResults';
 import { getSearchOptionsList } from '$lib/server/searchOptionUtils';
 import { getSparqlQueryResult } from '$lib/server/getSparqlQueryResult';
-import type {
-	SparqlBinding, FlatSparqlRow, SparqlSearchResult, FilterCategory
-} from '$lib/types/qleverSearch'
-import { SparqlFilterQueries, FilterCategoriesSorted, ResultSparqlQuery } from '$lib/types/qleverSearch'
+import type { FilterCategory } from '$lib/types/qleverSearch'
+import { createQueryFilter } from '$lib/utils/joinSparqlFilters';
+import { SparqlFilterQueries, FilterCategoriesSorted, BaseResultSparqlQuery } from '$lib/types/qleverSearch'
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// get selections from the url
@@ -34,10 +33,16 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	}, {});
 
 	// fetch results according to the selection
-	console.log(ResultSparqlQuery);
-	const sparqlResult = await getSparqlQueryResult(locals, ResultSparqlQuery)
+	console.log(BaseResultSparqlQuery);
+	console.log(initialFilters);
+	const sparqlQueryWithFilters = createQueryFilter(BaseResultSparqlQuery, initialFilters);
+	console.log(sparqlQueryWithFilters);
+	const sparqlResult = await getSparqlQueryResult(locals, {
+		sparqlQuery: sparqlQueryWithFilters,
+        resultFormat: `text/csv`
+	});
+	console.log(sparqlResult);
 	const resultTable = groupMappedQleverResultsByPrefix(sparqlResult);
-	console.log(resultTable);
 
 	// Return results, selections and options
 	return {

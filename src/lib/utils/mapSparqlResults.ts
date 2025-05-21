@@ -4,7 +4,6 @@ export function s3LinkToPrefix(cu: string): string {
     // Example: 'file:///data/batch/2024/05/16/24/HCI.json' -> 'batch/2024/05/16/28/'
     let s3Path = cu.replace('file:///data/', '');
     const lastSlashIndex = s3Path.lastIndexOf('/');
-    console.log(lastSlashIndex)
     const prefix = s3Path.substring(0, lastSlashIndex + 1);
     return prefix;
 }
@@ -49,7 +48,6 @@ export function groupMappedQleverResultsByPrefix(
 ): Record<string, QleverDisplayResult> {
     // Transform the raw results into the display format
     const mappedResults: QleverDisplayResult[] = mapQleverResults(rawResults);
-    console.log("mapped results", mappedResults);
 
     // Group the mapped results by the 'prefix' property
     const groupedByPrefix = mappedResults.reduce<Record<string, QleverDisplayResult[]>>((accumulator, currentItem) => {
@@ -61,7 +59,6 @@ export function groupMappedQleverResultsByPrefix(
         return accumulator;
     }, {});
 
-    console.log("grouped by Prefix", groupedByPrefix);
     const consolidatedOutput: Record<string, ConsolidatedQleverResult> = {};
 
     for (const prefixKey in groupedByPrefix) {
