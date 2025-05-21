@@ -33,15 +33,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	}, {});
 
 	// fetch results according to the selection
-	console.log(BaseResultSparqlQuery);
-	console.log(initialFilters);
+
 	const sparqlQueryWithFilters = createQueryFilter(BaseResultSparqlQuery, initialFilters);
-	console.log(sparqlQueryWithFilters);
+
 	const sparqlResult = await getSparqlQueryResult(locals, {
 		sparqlQuery: sparqlQueryWithFilters,
         resultFormat: `text/csv`
 	});
-	console.log(sparqlResult);
+
 	const resultTable = groupMappedQleverResultsByPrefix(sparqlResult);
 
 	// Return results, selections and options
