@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { Accordion } from '@skeletonlabs/skeleton-svelte';;
-	import type { SelectionState, FilterCategory, FilterDisplayConfig } from '$lib/types/qleverSearch';
+	import type { FilterCategory, FilterDisplayConfig } from '$lib/types/qleverSearch';
 	import { FilterDisplays, FilterCategoriesSorted } from '$lib/types/qleverSearch';
-	import { type Icon, Search, Atom } from '@lucide/svelte';
-	import { initializeCategoryState, toggleGenericSelection } from '$lib/utils/searchForm';
+	import { Search, Atom } from '@lucide/svelte';
+	import {
+		initializeCategoryState, toggleGenericSelection, type SelectionState
+	} from '$lib/utils/searchForm';
 	let { data } = $props();
 
 	interface AccordionItemConfig extends FilterDisplayConfig {
