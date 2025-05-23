@@ -1,4 +1,4 @@
-import type { QleverRawResult, QleverDisplayResult } from '$lib/types/qleverSearch'
+import type { QleverRawResult, QleverDisplayResult } from '$lib/types/search'
 
 export function s3LinkToPrefix(cu: string): string {
     // Example: 'file:///data/batch/2024/05/16/24/HCI.json' -> 'batch/2024/05/16/28/'

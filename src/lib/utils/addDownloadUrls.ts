@@ -15,7 +15,6 @@ interface S3FileObjectWithUrl extends S3FileObjectInput {
 	presignedUrlError?: string; // Optional field to indicate if URL generation failed
 }
 
-
 /**
  * Takes an array of S3 file objects and adds a pre-signed GET URL to each.
  *

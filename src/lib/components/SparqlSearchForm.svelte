@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Accordion } from '@skeletonlabs/skeleton-svelte';;
-	import type { FilterCategory, FilterDisplayConfig } from '$lib/types/qleverSearch';
-	import { FilterDisplays, FilterCategoriesSorted } from '$lib/types/qleverSearch';
+	import type { FilterCategory, FilterDisplayConfig } from '$lib/types/search';
+	import { FilterDisplays, FilterCategoriesSorted } from '$lib/types/search';
 	import { Search, Atom } from '@lucide/svelte';
 	import {
 		initializeCategoryState, toggleGenericSelection, type SelectionState

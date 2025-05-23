@@ -1,9 +1,8 @@
 import { parseCsvToObjects } from '$lib/utils/csvParser';
-import type { SparqlQueryConfig, QleverService } from '$lib/types/qleverSearch';
+import type { SparqlQueryConfig } from '$lib/types/search';
 
 /**
- * Fetches data using a SPARQL query, parses the result,
- * and extracts a list of string values for a specific key (column).
+ * Fetch data from Qlever using a SPARQL query, parse the result into an array of objects.
  *
  * @param locals The SvelteKit locals object, containing the qlever service.
  * @param config The SPARQL query configuration
@@ -12,26 +11,18 @@ import type { SparqlQueryConfig, QleverService } from '$lib/types/qleverSearch';
 export async function getSparqlQueryResult(
     locals: App.Locals,
     config: SparqlQueryConfig,
-): Promise<string[]> {
+): Promise<Record<string, string>[]> {
     if (!config.sparqlQuery) {
         console.warn('getSparqlQueryResult: query config is missing.');
         return [];
     }
-
     try {
-        // Ensure the Qlever service and its method are available on locals
-        if (!locals.qlever || typeof locals.qlever.queryQlever !== 'function') {
-            console.error('getSparqlQueryResult: locals.qlever.queryQlever service is not available.');
-            throw new Error('Qlever CSV service not configured correctly on locals.');
-        }
-
         // Fetch the CSV result using the SPARQL query
         const result = await locals.qlever.queryQlever(config);
-
-        const resultObjects = parseCsvToObjects(result);
+        const resultObjects: Record<string, string>[] = parseCsvToObjects(result);
         return resultObjects;
     } catch (error) {
         console.error(`Failed to get search options list for query targeting key "${config.resultKey}":`, error);
-        return []; // Return an empty array in case of any error
+        return [];
     }
 }

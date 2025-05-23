@@ -1,4 +1,4 @@
-import { SparqlVariables } from '$lib/types/qleverSearch';
+import { SparqlVariables } from '$lib/types/search';
 
 /**
  * Creates a SPARQL filter string by joining multiple conditions with OR (||).

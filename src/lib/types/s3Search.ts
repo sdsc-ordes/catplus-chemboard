@@ -1,7 +1,5 @@
-import type { FileTableColumns } from '$lib/types/campaign';
-
 /**
- * Interface for table columns of campaign file table
+ * Table columns of campaign file table
  */
 export interface FileTableColumns {
 	title: string; // Column title
@@ -30,7 +28,7 @@ export const HeadersQleverResults: string[] = [
 ]
 
 /**
- * Interface for table columns of campaign file table
+ * Table columns of campaign file table
  */
 export interface FileTableColumns {
 	title: string; // Column title

@@ -6,7 +6,7 @@ import type { Handle } from '@sveltejs/kit';
 import archiver from 'archiver'; // Library for creating zip archives
 import { PassThrough } from 'stream'; // Node.js stream utility
 import type { S3FileInfo } from '$lib/types/s3Search';
-import type { SparqlQueryConfig } from '$lib/types/qleverSearch';
+import type { SparqlQueryConfig } from '$lib/types/search';
 
 // --- S3 Configuration & Client Initialization ---
 

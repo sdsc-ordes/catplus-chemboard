@@ -1,4 +1,4 @@
-import type { FilterCategory } from '$lib/types/qleverSearch'
+import type { FilterCategory } from '$lib/types/search'
 
 /**
  * Selection State of the Search Form

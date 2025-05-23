@@ -1,18 +1,4 @@
 /**
- * Configurations and types for the search with qlever
- * on the route '/search'
- */
-
-// ---------------------------- Qlever Search
-
-/**
- * Qlever Service
- */
-export interface QleverService {
-    queryQlever: (config: SparqlQueryConfig) => Promise<string>;
-}
-
-/**
  * Sparql Query to Qlever: with query and result format
  */
 export interface SparqlQueryConfig {

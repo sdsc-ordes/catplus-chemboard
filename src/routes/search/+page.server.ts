@@ -3,9 +3,9 @@ import { redirect } from '@sveltejs/kit';
 import { groupMappedQleverResultsByPrefix } from '$lib/utils/mapSparqlResults';
 import { getSearchOptionsList } from '$lib/server/searchOptionUtils';
 import { getSparqlQueryResult } from '$lib/server/getSparqlQueryResult';
-import type { FilterCategory } from '$lib/types/qleverSearch'
+import type { FilterCategory } from '$lib/types/search';
 import { createQueryFilter } from '$lib/utils/joinSparqlFilters';
-import { SparqlFilterQueries, FilterCategoriesSorted, BaseResultSparqlQuery } from '$lib/types/qleverSearch'
+import { SparqlFilterQueries, FilterCategoriesSorted, BaseResultSparqlQuery } from '$lib/types/search'
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// get selections from the url

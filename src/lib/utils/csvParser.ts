@@ -62,46 +62,26 @@ export function parseCsvToObjects(csvString: string | null | undefined): Record<
     return result;
 }
 
-// interface for output of parseToPicklist with csv header and one column csv list
-interface Picklist {
-    header: string,
-    options: string[],
-}
-
 /**
- * Parses a simple CSV string into an array of objects.
- * Assumes the first line of the CSV is the header row.
- * Handles values enclosed in double quotes, but does not handle escaped quotes within quoted values
- * or multi-line quoted values for simplicity.
+ * Parses a CSV with one column into a list of strings
  *
  * @param csvString The CSV string to parse.
- * @returns Picklist: An array of objects, where each object represents a row
- * and keys are taken from the CSV header.
- * Returns an empty array if the CSV string is empty or has no data rows.
+ * @returns An array of strings
  */
-export function parseToPicklist(
-    csvString: string | null | undefined): Picklist {
+export function parseTolist(
+    csvString: string | null | undefined): string[] {
     if (!csvString || csvString.trim() === '') {
         throw new Error('No picklist could be retrieved');
     }
 
     // Split the CSV string into lines, handling both \r\n and \n line endings
     const lines = csvString.trim().split(/\r?\n/).map(line => line.replaceAll('"', ''));
-    // Extract header from the first line
-    const header = lines[0];
+    // Ignore header line
 
     if (lines.length < 2) {
-        // Not enough lines for a header and at least one data row
-        console.warn("CSV data must have a header and at least one data row.");
-        return  {
-            header: header,
-            options: [],
-        }
+        //No column data could be retrieved
+        return []
     }
-
-    const options: string[] = lines.slice((1));
-    return  {
-        header: header || '',
-        options: options,
-    }
+    // return column entries as options
+    return lines.slice((1));
 }
