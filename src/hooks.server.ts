@@ -1,10 +1,11 @@
 import { S3Client, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME } from '$env/static/private';
+import { AWS_REGION, AWS_ACCESS_KEY_ID,
+	AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME, QLEVER_URL } from '$env/static/private';
 import type { Handle } from '@sveltejs/kit';
 import archiver from 'archiver'; // Library for creating zip archives
 import { PassThrough } from 'stream'; // Node.js stream utility
-import type { S3FileInfo } from '$lib/schema/s3';
+import type { S3FileInfo } from '$lib/types/s3Search';
 
 // --- S3 Configuration & Client Initialization ---
 
@@ -187,6 +188,51 @@ async function getPresignedDownloadUrl(key: string, expiresInSeconds = 300): Pro
 	}
 }
 
+/**
+ * Executes a SPARQL query against the QLever endpoint and returns the result as a Turtle string.
+ *
+ * @param sparqlQuery The SPARQL query string (e.g., "CONSTRUCT {?s ?p ?o} WHERE {?s ?p ?o} LIMIT 10").
+ * @returns A Promise that resolves to the Turtle response string.
+ * @throws Will throw an error if the fetch operation fails or if the server returns a non-OK status.
+ */
+async function queryQlever(query: string): Promise<string> {
+    // URL-encode the SPARQL query
+	console.log("++++++ query", query);
+    const encodedQuery = encodeURIComponent(query);
+
+    // Construct the full URL with the query parameter
+    const fullUrl = `${QLEVER_URL}?query=${encodedQuery}`;
+	console.log(fullUrl);
+
+    try {
+        const response = await fetch(fullUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'text/csv',
+            },
+        });
+
+        if (!response.ok) {
+            // Attempt to get more details from the error response body
+            const errorBody = await response.text();
+            console.error(`Qlever query failed with status ${response.status}: ${response.statusText}`);
+            console.error(`Error body: ${errorBody}`);
+            throw new Error(`Qlever query failed: ${response.status} ${response.statusText}. Body: ${errorBody.substring(0, 500)}`);
+        }
+
+        // Get the response body as text (which should be Turtle)
+        const resultData = await response.text();
+        return resultData;
+
+    } catch (error: any) {
+        console.error(`Error during Qlever query for "${query}" with output format "${query}":`, error);
+        // Re-throw the error so the caller can handle it
+        // You might want to wrap it in a custom error type for more specific handling
+        throw new Error(`Failed to execute Qlever query: ${error.message}`);
+    }
+}
+
+
 // --- Handle Hook ---
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -201,6 +247,9 @@ export const handle: Handle = async ({ event, resolve }) => {
         listFiles: listFilesInBucket,
 		getPresignedDownloadUrl: getPresignedDownloadUrl,
 		createZipFile: createZipStreamForPrefix,
+	};
+	event.locals.qlever = {
+		queryQlever: queryQlever,
 	};
 	const response = await resolve(event);
 

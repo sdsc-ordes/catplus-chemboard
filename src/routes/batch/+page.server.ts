@@ -2,7 +2,7 @@ import type { PageServerLoad, Actions } from '../$types';
 import { redirect } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
 import { getCampaigns } from '$lib/utils/s3CampaignPrefixes';
-import type { CampaignResult } from '$lib/schema/campaign';
+import type { CampaignResult } from '$lib/types/campaign';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	const prefix = url.searchParams.get('prefix') || 'batch/';
