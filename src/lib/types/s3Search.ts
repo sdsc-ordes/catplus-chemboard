@@ -1,5 +1,7 @@
+
+
 /**
- * Table columns of campaign file table
+ * Interface for table columns of campaign file table
  */
 export interface FileTableColumns {
 	title: string; // Column title
@@ -22,13 +24,8 @@ export const ResultsPerPage: number = 4;
 // Table Header of S3 Results: route: /batch
 export const HeadersS3Results: string[] = ["Campaign Path", "Date"]
 
-// Table Headers of Qlever Results
-export const HeadersQleverResults: string[] = [
-    "Campaign Path", "Campaign Name", "Reaction Type", "Reaction Type", "Chemicals (Name, Cas, Smiles)"
-]
-
 /**
- * Table columns of campaign file table
+ * Interface for table columns of campaign file table
  */
 export interface FileTableColumns {
 	title: string; // Column title

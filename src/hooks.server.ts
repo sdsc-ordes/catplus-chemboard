@@ -6,7 +6,6 @@ import type { Handle } from '@sveltejs/kit';
 import archiver from 'archiver'; // Library for creating zip archives
 import { PassThrough } from 'stream'; // Node.js stream utility
 import type { S3FileInfo } from '$lib/types/s3Search';
-import type { SparqlQueryConfig } from '$lib/types/search';
 
 // --- S3 Configuration & Client Initialization ---
 
@@ -196,28 +195,22 @@ async function getPresignedDownloadUrl(key: string, expiresInSeconds = 300): Pro
  * @returns A Promise that resolves to the Turtle response string.
  * @throws Will throw an error if the fetch operation fails or if the server returns a non-OK status.
  */
-async function queryQlever(query: SparqlQueryConfig): Promise<string> {
+async function queryQlever(query: string): Promise<string> {
     // URL-encode the SPARQL query
-    const encodedQuery = encodeURIComponent(query.sparqlQuery);
+	console.log("++++++ query", query);
+    const encodedQuery = encodeURIComponent(query);
 
     // Construct the full URL with the query parameter
     const fullUrl = `${QLEVER_URL}?query=${encodedQuery}`;
-    // Note: QLever often expects 'action=tsv_export' or similar for SELECT queries if not using Accept headers for specific formats.
-    // For CONSTRUCT and DESCRIBE, the Accept header is usually sufficient.
-    // If you face issues, you might need to add other QLever-specific parameters.
+	console.log(fullUrl);
 
     try {
         const response = await fetch(fullUrl, {
             method: 'GET',
             headers: {
-                // Request Turtle format
-                'Accept': query.resultFormat,
-                // Add any other necessary headers here
+                'Accept': 'text/csv',
             },
         });
-		/* Currently the following media types are supported: application/sparql-results+json,
-		application/sparql-results+xml, application/qlever-results+json, text/tab-separated-values,
-		text/csv, text/turtle, application/n-triples, application/octet-stream",*/
 
         if (!response.ok) {
             // Attempt to get more details from the error response body
@@ -232,7 +225,7 @@ async function queryQlever(query: SparqlQueryConfig): Promise<string> {
         return resultData;
 
     } catch (error: any) {
-        console.error(`Error during Qlever query for "${query.sparqlQuery}" with output format "${query.resultFormat}":`, error);
+        console.error(`Error during Qlever query for "${query}" with output format "${query}":`, error);
         // Re-throw the error so the caller can handle it
         // You might want to wrap it in a custom error type for more specific handling
         throw new Error(`Failed to execute Qlever query: ${error.message}`);

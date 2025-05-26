@@ -1,7 +1,32 @@
-import type { QleverRawResult, QleverDisplayResult } from '$lib/types/search'
+import type { QleverRawResult } from '$lib/config/sparqlQueries'
 
+// Mapped Qlever result with prefix instead of content URL
+interface MappedQleverResult {
+    prefix: string;
+    campaignName: string;
+    reactionName: string;
+    reactionType: string;
+    chemicals: string;
+}
+
+// Consolidated Qlever display result
+interface ConsolidatedQleverResult {
+    prefix: string;
+    campaignName: string | string[];
+    reactionName: string | string[];
+    reactionType: string | string[];
+    chemicals: string | string[];
+}
+
+
+// transform content URL to s3 prefix, so that search result can be linked
+/**
+   * transform content URL to s3 prefix, so that search result can be linked
+   * @param cu - Campaign contentURL
+   * @returns S3 prefix
+   * @example
+   */
 export function s3LinkToPrefix(cu: string): string {
-    // Example: 'file:///data/batch/2024/05/16/24/HCI.json' -> 'batch/2024/05/16/28/'
     let s3Path = cu.replace('file:///data/', '');
     const lastSlashIndex = s3Path.lastIndexOf('/');
     const prefix = s3Path.substring(0, lastSlashIndex + 1);
@@ -13,24 +38,20 @@ export function s3LinkToPrefix(cu: string): string {
    * @param results - An array of source user objects.
    * @returns An array of transformed display result objects.
    */
-export function mapQleverResults(results: QleverRawResult[]): QleverDisplayResult[] {
+export function mapQleverResults(results: QleverRawResult[]): MappedQleverResult[] {
     if (!Array.isArray(results)) {
         console.error('Input must be an array.');
         return [];
     }
-
-    return results.map((result: QleverRawResult): QleverDisplayResult => {
-        // For each user object in the source array, create a new target profile object.
-        const displayResult: QleverDisplayResult= {
-            // Target property: `userId`
-            // Derived from: `user.id` (with a prefix added)
+    return results.map((result: QleverRawResult): MappedQleverResult => {
+        const mappedResult: MappedQleverResult = {
             prefix: s3LinkToPrefix(result.cu),
             campaignName: result.cp,
             reactionName: result.rn,
             reactionType: result.rt,
             chemicals: [result.cn, result.ca, result.sm].join(","),
         };
-        return displayResult;
+        return mappedResult;
     });
 }
 
@@ -45,12 +66,12 @@ export function mapQleverResults(results: QleverRawResult[]): QleverDisplayResul
  */
 export function groupMappedQleverResultsByPrefix(
     rawResults: QleverRawResult[]
-): Record<string, QleverDisplayResult> {
+): ConsolidatedQleverResult[] {
     // Transform the raw results into the display format
-    const mappedResults: QleverDisplayResult[] = mapQleverResults(rawResults);
+    const mappedResults: MappedQleverResult[] = mapQleverResults(rawResults);
 
     // Group the mapped results by the 'prefix' property
-    const groupedByPrefix = mappedResults.reduce<Record<string, QleverDisplayResult[]>>((accumulator, currentItem) => {
+    const groupedByPrefix = mappedResults.reduce<Record<string, MappedQleverResult[]>>((accumulator, currentItem) => {
         const groupKey = currentItem.prefix;
         if (!accumulator[groupKey]) {
             accumulator[groupKey] = [];
@@ -63,22 +84,20 @@ export function groupMappedQleverResultsByPrefix(
 
     for (const prefixKey in groupedByPrefix) {
         if (Object.prototype.hasOwnProperty.call(groupedByPrefix, prefixKey)) {
-            const itemsInGroup: QleverDisplayResult[] = groupedByPrefix[prefixKey];
+            const itemsInGroup: MappedQleverResult[] = groupedByPrefix[prefixKey];
 
             if (itemsInGroup.length === 0) {
                 continue;
             }
 
             // Initialize the consolidated item.
-            // The type assertion to 'any' initially and then to 'ConsolidatedQleverResult'
-            // simplifies dynamic property assignment.
             const consolidatedItemBase: any = { prefix: prefixKey };
 
             const firstItem = itemsInGroup[0];
             // These are the keys we want to process for consolidation (excluding 'prefix')
             const propertyKeys = Object.keys(firstItem).filter(
                 k => k !== 'prefix'
-            ) as Array<keyof Omit<QleverDisplayResult, 'prefix'>>;
+            ) as Array<keyof Omit<MappedQleverResult, 'prefix'>>;
 
             for (const propKey of propertyKeys) {
                 // Collect all values for the current property from all items in the group

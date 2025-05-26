@@ -10,20 +10,21 @@ import type { SparqlQueryConfig } from '$lib/types/search';
  */
 export async function getSearchOptionsList(
     locals: App.Locals,
-    config: SparqlQueryConfig,
+    query: string,
 ): Promise<string[]> {
-    if (!config.sparqlQuery) {
-        console.warn('getSearchOptionsList:  query config is missing.');
+    console.log("*** query", query);
+    if (!query) {
+        console.warn('getSearchOptionsList:  query is missing.');
         return [];
     }
 
     try {
-        const csvResultString = await locals.qlever.queryQlever(config);
+        const csvResultString = await locals.qlever.queryQlever(query);
         const options = parseTolist(csvResultString);
 
         return options;
     } catch (error) {
-        console.error(`Failed to get search options list for query "${config.sparqlQuery}":`, error);
+        console.error(`Failed to get search options list for query "${query}":`, error);
         return [];
     }
 }

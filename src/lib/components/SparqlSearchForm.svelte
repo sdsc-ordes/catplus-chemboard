@@ -1,20 +1,62 @@
 <script lang="ts">
 	import { Accordion } from '@skeletonlabs/skeleton-svelte';;
-	import type { FilterCategory, FilterDisplayConfig } from '$lib/types/search';
-	import { FilterDisplays, FilterCategoriesSorted } from '$lib/types/search';
+	import {
+		type FilterCategory, FilterCategoriesSorted
+	} from '$lib/config/sparqlQueries';
 	import { Search, Atom } from '@lucide/svelte';
 	import {
 		initializeCategoryState, toggleGenericSelection, type SelectionState
-	} from '$lib/utils/searchForm';
-	let { data } = $props();
+	} from '$lib/utils/searchFormSelectUtils';
 
+	interface Props {
+		picklists: Record<FilterCategory, string[]>;
+		initialFilters: Record<FilterCategory, string[]>;
+	};
+	let { picklists, initialFilters }: Props = $props();
+
+	// type used in the configuration of search filters
+	interface FilterDisplayConfig {
+		label: string,
+		nameAttr: string;
+	}
+
+    // mapping of filter categories to lables and form attribute names
+	export const FilterDisplays: Record<FilterCategory, FilterDisplayConfig> = {
+		CAMPAIGN_NAME: {
+			label: 'Campaign Name',
+			nameAttr: 'campaign_name'
+		},
+		REACTION_NAME: {
+			label: 'Reaction Name',
+			nameAttr: 'reaction_name'
+		},
+		REACTION_TYPE: {
+			label: 'Reaction Type',
+			nameAttr: 'reaction_type'
+		},
+		CHEMICAL_NAME: {
+			label: 'Chemical Name',
+			nameAttr: 'chemical_name'
+		},
+		CAS: {
+			label: 'Cas',
+			nameAttr: 'cas'
+		},
+		SMILES: {
+			label: 'Smiles',
+			nameAttr: 'smiles'
+		}
+	}
+
+	// type of the accordion search form
 	interface AccordionItemConfig extends FilterDisplayConfig {
 		options: string[];
 	}
 
+	// merge accordion with picklists that were retrieved from Qlever per FilterCategory
 	const accordionItemsConfig = Object.fromEntries(
 		FilterCategoriesSorted.map((categoryKey) => {
-			const categorySpecificPicklist = data.picklists?.[categoryKey] ?? [];
+			const categorySpecificPicklist = picklists?.[categoryKey] ?? [];
 			const itemConfig: AccordionItemConfig = {
 				label: FilterDisplays[categoryKey].label,
 				nameAttr: FilterDisplays[categoryKey].nameAttr,
@@ -24,14 +66,18 @@
 		})
 	) as Record<FilterCategory, AccordionItemConfig>;
 
+	// set initial selections for each filter category
 	const initialSelectionsObject = Object.fromEntries(
 		FilterCategoriesSorted.map((categoryKey) => {
-			const categorySpecificInitialData = data.initialFilters?.[categoryKey] ?? [];
+			const categorySpecificInitialData = initialFilters?.[categoryKey] ?? [];
 			return [categoryKey, initializeCategoryState(categoryKey, categorySpecificInitialData)];
 		})
 	) as Record<FilterCategory, SelectionState>;
 
+	// set the selection state in the form for each filter category
 	let selections = $state<Record<FilterCategory, SelectionState>>(initialSelectionsObject);
+
+	// initially accordion is closed
 	let value = $state<string[]>([]);
 </script>
 

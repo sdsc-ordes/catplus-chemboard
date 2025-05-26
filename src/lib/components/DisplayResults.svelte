@@ -10,11 +10,15 @@
 	import { Pagination } from '@skeletonlabs/skeleton-svelte';
 	import type { ResultItemBase } from '$lib/types/s3Search';
 
-	// get props from data loader
+	// Component imports
+	interface ComponentProps {
+		tableHeaders: string;
+		results: string[]
+	};
 	let {
-		results,
-		tableHeaders
-	} = $props();
+		tableHeaders,
+		results
+	}: ComponentProps = $props();
 
 	// Pagination of Campaigns
 	let page = $state(1);

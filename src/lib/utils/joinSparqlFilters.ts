@@ -1,4 +1,6 @@
-import { SparqlVariables } from '$lib/types/search';
+import { BaseResultSparqlQuery, SparqlVariables, type FilterCategory } from '$lib/config/sparqlQueries';
+
+export type FiltersObject = Partial<Record<FilterCategory, string[]>>;
 
 /**
  * Creates a SPARQL filter string by joining multiple conditions with OR (||).
@@ -10,7 +12,6 @@ import { SparqlVariables } from '$lib/types/search';
  * Example: "?cp = 'Caffeine Synthesis' || ?ca = '100-42-5' || ?ca = '108-88-3'"
  */
 export function createQueryFilter(
-    resultSparqlQuery: string[],
     filters: FiltersObject,
 ): string {
     const filterConditions: string[] = [];
@@ -40,10 +41,10 @@ export function createQueryFilter(
         }
     }
     if (filterConditions.length === 0) {
-        return `${resultSparqlQuery.baseClause}${resultSparqlQuery.orderByClause}`;
+        return `${BaseResultSparqlQuery.baseClause}${BaseResultSparqlQuery.orderByClause}`;
     }
 
     // Join all collected conditions with " || "
     const filterClause = filterConditions.join(' || ');
-    return `${resultSparqlQuery.baseClause} FILTER (${filterClause}) ${resultSparqlQuery.orderByClause}`;
+    return `${BaseResultSparqlQuery.baseClause} FILTER (${filterClause}) ${BaseResultSparqlQuery.orderByClause}`;
 }

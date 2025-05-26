@@ -1,4 +1,4 @@
-import type { FilterCategory } from '$lib/types/search'
+import type { FilterCategory } from '$lib/config/sparqlQueries'
 
 /**
  * Selection State of the Search Form

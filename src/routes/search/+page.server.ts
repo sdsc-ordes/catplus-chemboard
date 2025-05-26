@@ -3,9 +3,10 @@ import { redirect } from '@sveltejs/kit';
 import { groupMappedQleverResultsByPrefix } from '$lib/utils/mapSparqlResults';
 import { getSearchOptionsList } from '$lib/server/searchOptionUtils';
 import { getSparqlQueryResult } from '$lib/server/getSparqlQueryResult';
-import type { FilterCategory } from '$lib/types/search';
+import {
+	type FilterCategory, SparqlFilterQueries, FilterCategoriesSorted,
+} from '$lib/config/sparqlQueries';
 import { createQueryFilter } from '$lib/utils/joinSparqlFilters';
-import { SparqlFilterQueries, FilterCategoriesSorted, BaseResultSparqlQuery } from '$lib/types/search'
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	// get selections from the url
@@ -17,14 +18,15 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	) as Record<FilterCategory, string[]>;
 
     // Use Promise.all to fetch all select options in parallel
-    const picklistPromises = Object.entries(SparqlFilterQueries).map(async ([optionName, config]) => {
+    const picklistPromises = Object.entries(SparqlFilterQueries).map(async ([optionName, query]) => {
 		const picklist = await getSearchOptionsList(
-			locals, config);
+			locals, query);
         return {
 			key: optionName,
 			options: picklist,
 		};
     });
+
 	// map select options to the category keys
     const picklistsArray = await Promise.all(picklistPromises);
 	const pickListsMap = picklistsArray.reduce<Record<string, string[]>>((acc, currentItem) => {
@@ -32,15 +34,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		return acc;
 	}, {});
 
-	// fetch results according to the selection
+	// create the sparql query with selected filters
+	const sparqlQueryWithFilters = createQueryFilter(initialFilters);
 
-	const sparqlQueryWithFilters = createQueryFilter(BaseResultSparqlQuery, initialFilters);
+	// execute sparql search on Qlever
+	const sparqlResult: string = await getSparqlQueryResult(locals, sparqlQueryWithFilters);
 
-	const sparqlResult = await getSparqlQueryResult(locals, {
-		sparqlQuery: sparqlQueryWithFilters,
-        resultFormat: `text/csv`
-	});
-
+	// map the sparql result in the result table (with s3 prefixes)
 	const resultTable = groupMappedQleverResultsByPrefix(sparqlResult);
 
 	// Return results, selections and options
