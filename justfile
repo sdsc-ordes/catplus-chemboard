@@ -21,9 +21,6 @@ install:
 build: install
     pnpm build
 
-run: build
-    node ./build/index.js
-
 local:
     pnpm dev
 
